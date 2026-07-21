@@ -13,6 +13,7 @@ GO_MODS?=$$(find . -name 'go.mod' | xargs -L 1 dirname)
 SED?=$(shell command -v gsed || command -v sed)
 
 GO_VERSION_MIN=$$(cat $(CURDIR)/.go-version)
+BAO_VERSION?=$$(git describe --tags --always --match 'v*' HEAD | $(SED) 's/^v//')
 PROTOC_VERSION_MIN=31.1
 CGO_ENABLED?=0
 ifneq ($(FDB_ENABLED), )
@@ -55,7 +56,7 @@ dev-dynamic-mem: dev-dynamic
 # The resulting image is tagged "openbao:dev".
 docker-dev: BUILD_TAGS+=testonly
 docker-dev: prep
-	$(DOCKER_CMD) build --build-arg VERSION=$(GO_VERSION_MIN) --build-arg BUILD_TAGS="$(BUILD_TAGS)" -f scripts/docker/Dockerfile -t openbao:dev .
+	$(DOCKER_CMD) build --build-arg VERSION=$(GO_VERSION_MIN) --build-arg BUILD_TAGS="$(BUILD_TAGS)" --build-arg BAO_VERSION="$(BAO_VERSION)" -f scripts/docker/Dockerfile -t openbao:dev .
 
 docker-dev-ui: BUILD_TAGS+=testonly
 docker-dev-ui: prep

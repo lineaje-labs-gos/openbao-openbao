@@ -9,12 +9,13 @@ FROM golang:${VERSION} AS builder
 
 ARG CGO_ENABLED=0
 ARG BUILD_TAGS
+ARG BAO_VERSION
 
 WORKDIR /go/src/github.com/openbao/openbao
 COPY . .
 
 RUN make bootstrap \
-  && CGO_ENABLED=$CGO_ENABLED BUILD_TAGS="${BUILD_TAGS}" OPENBAO_DEV_BUILD=1 sh -c "'./scripts/build.sh'"
+  && CGO_ENABLED=$CGO_ENABLED BUILD_TAGS="${BUILD_TAGS}" BAO_VERSION="${BAO_VERSION}" OPENBAO_DEV_BUILD=1 sh -c "'./scripts/build.sh'"
 
 # Docker Image
 

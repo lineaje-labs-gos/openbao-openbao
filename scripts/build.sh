@@ -30,6 +30,10 @@ GIT_DIRTY="$(test -n "`git status --porcelain`" && echo "+CHANGES" || true)"
 
 BUILD_DATE="$(git show --no-show-signature -s --format=%cd --date=format:"%Y-%m-%dT%H:%M:%SZ" HEAD)"
 
+# Derive the version from the latest reachable git tag unless it was passed in
+# (e.g. by the Dockerfile, which receives it as a build-arg computed on the host).
+BAO_VERSION="${BAO_VERSION:-$(git describe --tags --always --match 'v*' HEAD | sed 's/^v//')}"
+
 GOPATH=${GOPATH:-$(${GO_CMD} env GOPATH)}
 case $(uname) in
     CYGWIN*)
@@ -47,7 +51,7 @@ mkdir -p bin/
 echo "==> Building bao..."
 ${GO_CMD} build \
     -gcflags "${GCFLAGS}" \
-    -ldflags "${LD_FLAGS} -X github.com/openbao/openbao/version.GitCommit='${GIT_COMMIT}${GIT_DIRTY}' -X github.com/openbao/openbao/version.BuildDate=${BUILD_DATE}" \
+    -ldflags "${LD_FLAGS} -X github.com/openbao/openbao/version.fullVersion=${BAO_VERSION} -X github.com/openbao/openbao/version.GitCommit='${GIT_COMMIT}${GIT_DIRTY}' -X github.com/openbao/openbao/version.BuildDate=${BUILD_DATE}" \
     -o "bin/bao" \
     -tags "${BUILD_TAGS}" \
     .
